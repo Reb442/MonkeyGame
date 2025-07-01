@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8fc5d6b892d7334f955496e7d5e8a69, type: 3}
+  m_Name: DefaultTestShip
+  m_EditorClassIdentifier: 
+  MaxFuel: 0
+  Vmax: 0
+  MaxResistance: 0
+  ThrusterPower: 0
+  mass: 500
