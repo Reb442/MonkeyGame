@@ -8,4 +8,5 @@ public class ShipStatSO : ScriptableObject
     public int ThrusterPower;
     public int mass;
     public int MovePower;
+
 }
