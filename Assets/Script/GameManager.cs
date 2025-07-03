@@ -1,10 +1,11 @@
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    public ShipStatSO CurrentShipStat;
+    //public ShipStatSO CurrentShipStat;
     public bool isPlaying;
     public bool didLaunch = false;
     public Button StartButton;
@@ -26,7 +27,17 @@ public class GameManager : MonoBehaviour
         MiniGameParentGameobject.SetActive(true);
         StartButton.gameObject.SetActive(false);
     }
+    public void EndGame()
+    {
+        isPlaying = false;
+        
 
+        
+    }
+    public void AddMoney(int MoneyToAdd)
+    {
+        PlayerPrefs.SetInt("PlayerMoney", PlayerPrefs.GetInt("PlayerMoney", 0) + MoneyToAdd);
+    }
     public void Update()
     {
         

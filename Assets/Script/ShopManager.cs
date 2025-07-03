@@ -6,48 +6,47 @@ public class ShopManager : MonoBehaviour
 {
     [SerializeField] GameObject ShopMainObject;
     public GameObject[] MenuObject;
-    public Button[] UpgradeButtons;
     public int MenuIndex = 0;
 
-    public List<UpgradeEntry> allUpgrades;
+    public List<UpgradeSaveData> allUpgrades; 
+    private Dictionary<string, UpgradeEntry> playerUpgrades = new Dictionary<string, UpgradeEntry>();
+    private const string SAVE_KEY = "NewNewUpgradeData";
 
-    private Dictionary<string, int> playerUpgrades = new Dictionary<string, int>();
-    private string savePath;
-    private const string SAVE_KEY = "UpgradeData";
-    public void Start()
+    void Awake()
     {
-        ChangeMenu(0);
-    }
-    
-    public bool BuyUpgrade(string upgradeName)
-    {
-        if (!CanUpgrade(upgradeName)) return false;
-
-        playerUpgrades[upgradeName]++;
-        SaveUpgrades();
-        Debug.Log($"Upgraded {upgradeName} to level {playerUpgrades[upgradeName]}");
-        return true;
+        LoadUpgrades();
     }
 
     public bool CanUpgrade(string upgradeName)
     {
-        var upgrade = allUpgrades.Find(u => u.name == upgradeName);
-        if (upgrade == null) return false;
+        if (!playerUpgrades.ContainsKey(upgradeName))
+            return false;
 
-        return playerUpgrades[upgradeName] < upgrade.maxLevel;
+        return playerUpgrades[upgradeName].upgradeCount < playerUpgrades[upgradeName].MaxUpgradeCount;
+    }
+
+    public void ApplyUpgrade(string upgradeName)
+    {
+        if (!CanUpgrade(upgradeName)) return;
+
+        playerUpgrades[upgradeName].upgradeCount++;
+        SaveUpgrades();
+        Debug.Log($"Upgraded {upgradeName} to level {playerUpgrades[upgradeName].upgradeCount}");
+        
     }
 
     public int GetUpgradeLevel(string upgradeName)
     {
-        return playerUpgrades.ContainsKey(upgradeName) ? playerUpgrades[upgradeName] : 0;
+        return playerUpgrades.ContainsKey(upgradeName) ? playerUpgrades[upgradeName].upgradeCount : 0;
     }
+
     public void SaveUpgrades()
     {
         UpgradeSaveData saveData = new UpgradeSaveData();
 
         foreach (var kvp in playerUpgrades)
         {
-            saveData.upgrades.Add(new UpgradeEntry { name = kvp.Key, upgradeCount = kvp.Value });
+            saveData.upgrades.Add(kvp.Value);
         }
 
         string json = JsonUtility.ToJson(saveData);
@@ -56,37 +55,56 @@ public class ShopManager : MonoBehaviour
 
         Debug.Log("Upgrades saved to PlayerPrefs.");
     }
+
     public void LoadUpgrades()
     {
-        
-        foreach (var upgrade in allUpgrades)
-        {
-            playerUpgrades[upgrade.name] = 0;
-        }
+        playerUpgrades.Clear();
 
         if (PlayerPrefs.HasKey(SAVE_KEY))
         {
             string json = PlayerPrefs.GetString(SAVE_KEY);
             UpgradeSaveData saveData = JsonUtility.FromJson<UpgradeSaveData>(json);
 
-            foreach (var entry in saveData.upgrades)
+            if (saveData != null && saveData.upgrades != null)
             {
-                if (playerUpgrades.ContainsKey(entry.name))
+                foreach (var entry in saveData.upgrades)
                 {
-                    playerUpgrades[entry.name] = entry.upgradeCount;
+                    playerUpgrades[entry.UpgradeName] = entry;
+                    Debug.Log($"Loaded: {entry.UpgradeName} = {entry.upgradeCount}");
                 }
             }
-
-            Debug.Log("Upgrades loaded from PlayerPrefs.");
+            else
+            {
+                Debug.LogWarning("Invalid or empty upgrade save data.");
+            }
         }
         else
         {
-            Debug.Log("No saved upgrade data found.");
+            Debug.Log("No saved upgrade data found. Creating fresh entries.");
+            
         }
+    }
+
+    public void ResetUpgrades()
+    {
+        PlayerPrefs.DeleteKey(SAVE_KEY);
+        LoadUpgrades();
+    }
+
+    public UpgradeEntry GetUpgradeData(string upgradeName)
+    {
+        if (playerUpgrades.TryGetValue(upgradeName, out var data))
+            return data;
+
+        return null;
     }
     public void ToggleShopMenu()
     {
         ShopMainObject.SetActive(!ShopMainObject.activeInHierarchy);
+        if (ShopMainObject.activeInHierarchy)
+        {
+            LoadUpgrades();
+        }
     }
     public void ChangeMenu(int i)
     {

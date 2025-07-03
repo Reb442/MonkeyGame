@@ -13,8 +13,9 @@ public class UpgradeSaveData
 [Serializable]
 public class UpgradeEntry
 {
-    public string name;
-
+    public string UpgradeName;
     public int upgradeCount;
-    public int maxLevel;
+    public int MaxUpgradeCount;
+    public int FinishedUpgradeCount;
+    public int MaxFinishedUpgradeCount;
 }

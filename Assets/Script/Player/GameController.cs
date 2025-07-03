@@ -21,7 +21,7 @@ public class GameController : MonoBehaviour
     int MaxResistance;
     int currentResistance;
 
-    
+    float TempMoney;
 
     public void Start()
     {
@@ -49,17 +49,24 @@ public class GameController : MonoBehaviour
         if (isMoving)
         {
             ShipRigidBody.AddForce(playerController.Player.Move.ReadValue<Vector2>() * 100 * Time.deltaTime, ForceMode.Force);
+            
+        }
+        if(ShipRigidBody.linearVelocity.y < -3)
+        {
+            GameManager.instance.EndGame();
+            GameManager.instance.AddMoney()
+            isMoving = false;
         }
     }
 
     public void SetStats()
     {
-       ShipStatSO stat = GameManager.instance.CurrentShipStat;
-       MaxFuel = stat.MaxFuel;
+       
     }
 
     public void OnPlay(float multi)
     {
+
         CurrentFuel = MaxFuel;
         GameManager.instance.didLaunch = true;
         LaunchRocket(multi);
@@ -70,4 +77,5 @@ public class GameController : MonoBehaviour
         ShipRigidBody.AddForce(Vector3.up * 10f * LaunchForceMulti, ForceMode.Impulse);
         LaunchButton.gameObject.SetActive(false);
     }
+    
 }
